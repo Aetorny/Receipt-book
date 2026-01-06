@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книга Рецептов</title>
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="static/css/index.css">
+    
+    <!-- Стили для красивых селектов (Tom Select) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
+    
+    <!-- Markdown парсер -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Скрипт для селектов -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+</head>
+<body>
+
+    <div class="app-layout">
+        <main class="main-content">
+            <header>
+                <h1>Кулинарная Книга</h1>
+                <p>База рецептов</p>
+            </header>
+            
+            <div id="treemap-container">
+                <div class="loading">Загрузка данных...</div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 id="sidebar-title">Управление</h2>
+                <div class="header-controls">
+                    <button id="btn-refresh" class="icon-btn secondary" title="Обновить">
+                        <i class="fa-solid fa-sync"></i>
+                    </button>
+                    <button id="btn-create-mode" class="icon-btn" title="Создать рецепт">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="sidebar-content" class="sidebar-body"></div>
+        </aside>
+    </div>
+
+    <div id="image-viewer-modal" class="image-viewer hidden">
+        <span class="close-viewer">&times;</span>
+        <img class="viewer-content" id="full-image">
+    </div>
+
+    <script src="static/js/index.js"></script>
+</body>
+</html>
