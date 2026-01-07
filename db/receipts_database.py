@@ -48,9 +48,9 @@ class ReceiptsDatabase:
         self._write()
 
     def update_receipt(self, receipt_name: str, updated_data: ReceiptModel):
-        for receipt in self.data["receipts"]:
+        for idx, receipt in enumerate(self.data["receipts"]):
             if receipt["receipt_name"] == receipt_name:
-                receipt = updated_data.model_dump()
+                self.data["receipts"][idx] = updated_data.model_dump()
                 self._write()
                 return
 
