@@ -4,23 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книга Рецептов</title>
-    <!-- Основные стили -->
+    
+    <!-- Стили -->
     <link rel="stylesheet" href="static/css/index.css">
     
-    <!-- Стили для красивых селектов (Tom Select) -->
+    <!-- Tom Select -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
-    
-    <!-- Markdown парсер -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Иконки -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Скрипт для селектов -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    
+    <!-- Markdown и Иконки -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div class="app-layout">
+        <!-- Основной контент (Дерево) -->
         <main class="main-content">
             <header>
                 <h1>Кулинарная Книга</h1>
@@ -32,13 +31,19 @@
             </div>
         </main>
 
-        <aside class="sidebar">
+        <!-- РАЗДЕЛИТЕЛЬ (За него тянем) -->
+        <div id="resizer"></div>
+
+        <!-- Боковая панель -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2 id="sidebar-title">Управление</h2>
                 <div class="header-controls">
-                    <button id="btn-refresh" class="icon-btn secondary" title="Обновить">
-                        <i class="fa-solid fa-sync"></i>
+                    <!-- Кнопка Растянуть/Сжать -->
+                    <button id="btn-toggle-size" class="icon-btn secondary" title="Развернуть/Свернуть панель">
+                        <i class="fa-solid fa-expand"></i>
                     </button>
+                    <!-- Кнопка Создать -->
                     <button id="btn-create-mode" class="icon-btn" title="Создать рецепт">
                         <i class="fa-solid fa-plus"></i>
                     </button>
@@ -49,11 +54,13 @@
         </aside>
     </div>
 
+    <!-- Модалка для картинок -->
     <div id="image-viewer-modal" class="image-viewer hidden">
         <span class="close-viewer">&times;</span>
         <img class="viewer-content" id="full-image">
     </div>
 
+    <!-- Скрипт -->
     <script src="static/js/index.js"></script>
 </body>
 </html>

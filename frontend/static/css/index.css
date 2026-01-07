@@ -18,15 +18,30 @@ body {
     color: var(--text-color);
     margin: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* Важно: убираем скролл у всего окна */
 }
 
-.app-layout { display: flex; height: 100vh; width: 100%; }
+/* Фикс для заголовков */
+h1 { font-size: 2rem; margin: 0.67em 0; font-weight: bold; }
+h2 { font-size: 1.5rem; font-weight: bold; }
+
+/* Когда тянем панель, курсор должен быть стрелочками везде */
+body.resizing {
+    cursor: col-resize;
+    user-select: none; /* Запрещаем выделение текста */
+}
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
 
 .main-content {
-    flex: 1;
+    flex: 1; /* Занимает всё свободное место */
     overflow-y: auto;
     padding: 20px;
+    min-width: 300px;
 }
 
 header { text-align: center; margin-bottom: 20px; }
@@ -40,15 +55,33 @@ header { text-align: center; margin-bottom: 20px; }
 
 .loading { width: 100%; text-align: center; color: #888; margin-top: 50px; }
 
-.sidebar {
-    width: 400px;
-    min-width: 350px;
-    background-color: var(--sidebar-bg);
+/* --- РАЗДЕЛИТЕЛЬ (RESIZER) --- */
+#resizer {
+    width: 6px;
+    background-color: transparent;
+    cursor: col-resize;
+    z-index: 20;
+    /* Тонкая линия-граница всегда видна */
     border-left: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+    flex-shrink: 0; /* Не сжиматься */
+}
+
+#resizer:hover, body.resizing #resizer {
+    background-color: var(--accent); /* Подсветка при наведении */
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 400px; /* Ширина по умолчанию */
+    min-width: 300px; /* Минимальная ширина */
+    max-width: 90vw;
+    background-color: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     box-shadow: -2px 0 10px rgba(0,0,0,0.03);
     z-index: 10;
+    flex-shrink: 0; /* Запрещаем сжиматься flex-ом */
 }
 
 .sidebar-header {
@@ -58,12 +91,15 @@ header { text-align: center; margin-bottom: 20px; }
     justify-content: space-between;
     align-items: center;
     background-color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
 }
-.sidebar-header h2 { margin: 0; font-size: 1.2rem; color: var(--accent); }
+.sidebar-header h2 { margin: 0; color: var(--accent); }
 .header-controls { display: flex; gap: 10px; }
 
 .sidebar-body { flex: 1; overflow-y: auto; padding: 20px; }
 
+/* КНОПКИ */
 .icon-btn {
     background: var(--accent);
     color: white;
@@ -77,6 +113,7 @@ header { text-align: center; margin-bottom: 20px; }
     align-items: center;
     justify-content: center;
     transition: background 0.2s;
+    flex-shrink: 0;
 }
 .icon-btn:hover { background: var(--accent-hover); }
 .icon-btn.secondary { background: #94a3b8; }
@@ -91,6 +128,23 @@ header { text-align: center; margin-bottom: 20px; }
     cursor: pointer;
 }
 .btn-delete:hover { background-color: #dc2626; }
+
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+.btn-primary:hover { background-color: var(--accent-hover); }
+
+/* ЭЛЕМЕНТЫ UI */
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+.form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+textarea.form-control { min-height: 150px; resize: vertical; }
 
 .tag-box {
     border: 1px solid var(--tag-border);
@@ -113,14 +167,8 @@ header { text-align: center; margin-bottom: 20px; }
     color: #475569;
     text-transform: uppercase;
 }
-.delete-tag-btn {
-    cursor: pointer;
-    color: #cbd5e1;
-    font-size: 1.2em;
-    padding: 0 5px;
-}
+.delete-tag-btn { cursor: pointer; color: #cbd5e1; font-size: 1.2em; padding: 0 5px; }
 .delete-tag-btn:hover { color: var(--danger); }
-
 .tag-content { display: flex; flex-wrap: wrap; gap: 10px; }
 .tag-box .tag-box { background-color: rgba(0, 0, 0, 0.02); border-color: #94a3b8; flex: 1 1 90%; }
 
@@ -136,58 +184,28 @@ header { text-align: center; margin-bottom: 20px; }
     flex-direction: column;
     transition: transform 0.2s, box-shadow 0.2s;
 }
-.receipt-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    background-color: var(--receipt-hover);
-}
-.receipt-card.active {
-    background-color: var(--accent);
-    color: white;
-    border-color: var(--accent-hover);
-}
-.receipt-card img {
-    width: 100%;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    background-color: #eee;
-}
+.receipt-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); background-color: var(--receipt-hover); }
+.receipt-card.active { background-color: var(--accent); color: white; border-color: var(--accent-hover); }
+.receipt-card img { width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; background-color: #eee; }
 .receipt-name { font-weight: 600; font-size: 0.9em; margin-bottom: 5px; }
 
 .view-image { 
     width: 100%; 
-    max-height: 250px; 
-    object-fit: cover; 
+    max-height: 40vh; 
+    object-fit: contain; 
     border-radius: 8px; 
     margin-bottom: 15px; 
     cursor: zoom-in;
-    transition: opacity 0.2s;
+    background-color: #eee;
 }
 .view-image:hover { opacity: 0.9; }
 
 .badge { display: inline-block; background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; margin-bottom: 15px; }
 
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-.form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-textarea.form-control { min-height: 150px; resize: vertical; }
-
-.btn-primary {
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    width: 100%;
-}
-.btn-primary:hover { background-color: var(--accent-hover); }
-
 .markdown-body { line-height: 1.6; }
 .markdown-body ul { padding-left: 20px; }
 
+/* LIGHTBOX */
 .image-viewer {
     position: fixed;
     z-index: 2000;
@@ -202,48 +220,11 @@ textarea.form-control { min-height: 150px; resize: vertical; }
     backdrop-filter: blur(5px);
 }
 .image-viewer.hidden { display: none !important; }
-.viewer-content {
-    display: block;
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 4px;
-    animation: zoom 0.3s;
-}
+.viewer-content { display: block; max-width: 90%; max-height: 90%; border-radius: 4px; animation: zoom 0.3s; }
 @keyframes zoom { from {transform:scale(0)} to {transform:scale(1)} }
-.close-viewer {
-    position: absolute;
-    top: 20px;
-    right: 35px;
-    color: #f1f1f1;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 2001;
-}
+.close-viewer { position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 2001; }
 
-/* --- OVERRIDES FOR TOM SELECT (Custom Dropdowns) --- */
-.ts-control {
-    border-radius: 4px !important;
-    border: 1px solid #ccc !important;
-    padding: 8px 10px !important;
-    box-shadow: none !important;
-    background-color: #fff;
-    font-family: inherit;
-}
-.ts-control.focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1) !important;
-}
-.ts-dropdown {
-    border-radius: 4px !important;
-    border: 1px solid var(--border-color) !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-    z-index: 50 !important; /* Чтобы выпадал поверх всего в сайдбаре */
-}
-.ts-dropdown .active {
-    background-color: var(--receipt-bg) !important;
-    color: var(--text-color) !important;
-}
-.ts-wrapper.single .ts-control:after {
-    border-color: #888 transparent transparent transparent !important;
-}
+/* TOM SELECT OVERRIDES */
+.ts-control { border-radius: 4px !important; border: 1px solid #ccc !important; padding: 8px 10px !important; box-shadow: none !important; }
+.ts-control.focus { border-color: var(--accent) !important; }
+.ts-dropdown { border-radius: 4px !important; z-index: 9999 !important; }

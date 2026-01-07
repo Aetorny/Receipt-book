@@ -4,11 +4,14 @@ let appState = {
     tree: []
 };
 
+// DOM элементы
 const treeContainer = document.getElementById('treemap-container');
 const sidebarTitle = document.getElementById('sidebar-title');
 const sidebarContent = document.getElementById('sidebar-content');
 const btnCreateMode = document.getElementById('btn-create-mode');
-const btnRefresh = document.getElementById('btn-refresh');
+const btnToggleSize = document.getElementById('btn-toggle-size');
+const sidebar = document.getElementById('sidebar');
+const resizer = document.getElementById('resizer');
 
 const imageModal = document.getElementById('image-viewer-modal');
 const fullImage = document.getElementById('full-image');
@@ -16,12 +19,67 @@ const closeViewerBtn = document.querySelector('.close-viewer');
 
 document.addEventListener('DOMContentLoaded', () => {
     initLightbox();
+    initResizer();
     loadData();
 });
 
 btnCreateMode.addEventListener('click', () => setCreateMode());
-btnRefresh.addEventListener('click', loadData);
 
+// --- ЛОГИКА КНОПКИ РАСТЯНУТЬ/СЖАТЬ ---
+if (btnToggleSize) {
+    btnToggleSize.addEventListener('click', () => {
+        const currentWidth = sidebar.offsetWidth;
+        const defaultWidth = 400;
+        const expandedWidth = window.innerWidth * 0.6; // 60% экрана
+
+        // Если ширина больше дефолтной, значит мы в широком режиме -> сжимаем
+        if (currentWidth > defaultWidth + 50) {
+            sidebar.style.width = `${defaultWidth}px`;
+            btnToggleSize.innerHTML = '<i class="fa-solid fa-expand"></i>';
+        } else {
+            sidebar.style.width = `${expandedWidth}px`;
+            btnToggleSize.innerHTML = '<i class="fa-solid fa-compress"></i>';
+        }
+    });
+}
+
+// --- ЛОГИКА ПЕРЕТАСКИВАНИЯ (МЫШКОЙ) ---
+function initResizer() {
+    if (!resizer) return;
+
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.classList.add('resizing');
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        e.preventDefault(); // Чтобы не выделялся текст
+    });
+
+    function handleMouseMove(e) {
+        if (!isResizing) return;
+        
+        // Так как сайдбар справа, ширина = (Ширина окна - позиция мыши)
+        const newWidth = window.innerWidth - e.clientX;
+
+        // Ограничители (чтобы не сломать верстку)
+        if (newWidth > 300 && newWidth < window.innerWidth - 100) {
+            sidebar.style.width = `${newWidth}px`;
+        }
+    }
+
+    function handleMouseUp() {
+        if (isResizing) {
+            isResizing = false;
+            document.body.classList.remove('resizing');
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+    }
+}
+
+// --- Lightbox (Картинки) ---
 function initLightbox() {
     if (imageModal) {
         closeViewerBtn.onclick = () => imageModal.classList.add('hidden');
@@ -36,6 +94,7 @@ function initLightbox() {
     }
 }
 
+// --- Загрузка данных ---
 async function loadData() {
     treeContainer.replaceChildren();
     const loading = document.createElement('div');
@@ -280,13 +339,12 @@ function createFormGroup(labelText, inputElement) {
     return div;
 }
 
-// Вспомогательная функция для инициализации Tom Select на всех select'ах в контейнере
 function applyCustomSelects(container) {
     const selects = container.querySelectorAll('select');
     selects.forEach(el => {
         new TomSelect(el, {
             create: false,
-            sortField: [], // Отключаем авто-сортировку, чтобы сохранить структуру дерева
+            sortField: [],
             placeholder: 'Выберите значение...'
         });
     });
@@ -314,7 +372,7 @@ function setEditMode(receipt, currentTagName) {
 
     const tagSelect = document.createElement('select');
     tagSelect.name = 'tag_name';
-    tagSelect.className = 'form-control'; // Tom Select заменит это
+    tagSelect.className = 'form-control';
     tagSelect.required = true;
     fillSelectOptions(tagSelect, appState.tree, 0, currentTagName);
     form.appendChild(createFormGroup('Категория', tagSelect));
@@ -357,8 +415,7 @@ function setEditMode(receipt, currentTagName) {
 
     form.addEventListener('submit', handleUpdateReceipt);
     sidebarContent.appendChild(form);
-
-    // Применяем красивые селекты
+    
     applyCustomSelects(form);
 }
 
@@ -411,7 +468,6 @@ function setCreateMode() {
     document.querySelectorAll('.receipt-card').forEach(c => c.classList.remove('active'));
     sidebarContent.replaceChildren();
 
-    // Section Tag
     const tagSection = document.createElement('div');
     tagSection.style.marginBottom = '25px';
     tagSection.style.paddingBottom = '25px';
@@ -459,7 +515,6 @@ function setCreateMode() {
     tagSection.appendChild(tagForm);
     sidebarContent.appendChild(tagSection);
 
-    // Section Receipt
     const h3Receipt = document.createElement('h3');
     h3Receipt.textContent = 'Добавить рецепт';
     sidebarContent.appendChild(h3Receipt);
@@ -479,7 +534,7 @@ function setCreateMode() {
     rTagSelect.required = true;
     const optDisabled = document.createElement('option');
     optDisabled.value = '';
-    optDisabled.textContent = ''; // TomSelect использует placeholder
+    optDisabled.textContent = '';
     optDisabled.selected = true;
     rTagSelect.appendChild(optDisabled);
     fillSelectOptions(rTagSelect, appState.tree);
@@ -505,7 +560,6 @@ function setCreateMode() {
     receiptForm.addEventListener('submit', handleCreateReceipt);
     sidebarContent.appendChild(receiptForm);
 
-    // Применяем красивые селекты ко всем формам в сайдбаре
     applyCustomSelects(sidebarContent);
 }
 
@@ -514,8 +568,6 @@ function fillSelectOptions(selectElement, nodes, level = 0, selectedTag = null) 
         const option = document.createElement('option');
         option.value = node.tag_name;
         
-        // Используем non-breaking space для визуального отступа,
-        // Tom Select обычно рендерит HTML/текст нормально
         const prefix = '\u00A0\u00A0'.repeat(level) + (level > 0 ? '└ ' : '');
         option.textContent = prefix + node.tag_name;
 
